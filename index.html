@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+
+<style id="webmakerstyle">
+* {
+ box-sizing: border-box;
+}
+
+body,html, #wrapper {
+ height: 100%;
+}
+
+body {
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* Playground UI */
+#data-editor textarea {
+ width: 100%;
+ height: 100%;
+ color: grey;
+}
+#data-editor {
+ width: 50%;
+ height: 100%;
+ float: left;
+}
+
+#spinner{
+ visibility: hidden;
+}
+.sp {
+	width: 20px;
+	height: 20px;
+	clear: both;
+/* 	margin: 5px auto; */
+ display: inline-block;
+
+}
+
+/* Spinner Circle Rotation */
+.sp-circle {
+	border: 4px rgba(0,0,0,0.25) solid;
+	border-top: 4px rgba(0,0,0,1) solid;
+	border-radius: 50%;
+	-webkit-animation: spCircRot .6s infinite linear;
+	animation: spCircRot .6s infinite linear;
+}
+@-webkit-keyframes spCircRot {
+	from { -webkit-transform: rotate(0deg); }
+	to { -webkit-transform: rotate(359deg); }
+}
+@keyframes spCircRot {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(359deg); }
+}
+
+/* Component classes */
+.cmp-page{
+ display: -webkit-box;
+ display: -webkit-flex;
+ display: -ms-flexbox;
+ display: flex;
+ -webkit-flex-direction: column;
+ -ms-flex-direction: column;
+ flex-direction: column;
+ padding: 10px;
+}
+.cmp-container {
+ padding: 5px 0px;
+ margin: 5px 0px;
+}
+
+.cmp-code {
+ white-space: pre;
+ border-width: 10px;
+ border-style: solid;
+ border-color: rgb(234, 234, 234);
+ border-image: initial;
+ padding: 20px;
+ margin: 40px 0px;
+ overflow: auto;
+}
+.cmp-input{
+ -webkit-box-align: center;
+ align-items: center;
+ display: inline-flex;
+ height: 37px;
+ position: relative;
+ vertical-align: middle;
+ width: initial;
+ border-radius: 5px;
+ border-width: 1px;
+ border-style: solid;
+ border-color: rgb(225, 225, 225);
+ border-image: initial;
+ transition: border 0.2s ease 0s, color 0.2s ease 0s;
+ background: rgb(255, 255, 255);
+ box-shadow: none;
+ transition: border 0.2s ease 0s, color 0.2s ease 0s;
+
+}
+
+.cmp-button {
+ -webkit-appearance: none;
+ -moz-appearance: none;
+ appearance: none;
+ position: relative;
+ display: inline-block;
+ vertical-align: middle;
+ text-transform: uppercase;
+ text-align: center;
+ -webkit-text-decoration: none;
+ text-decoration: none;
+ line-height: 38px;
+ white-space: nowrap;
+ min-width: 200px;
+ height: 40px;
+ padding: 0 25px 0 25px;
+ font-weight: 500;
+ border-radius: 5px;
+ font-size: 12px;
+ -webkit-flex-shrink: 0;
+ -ms-flex-negative: 0;
+ flex-shrink: 0;
+ color: #fff;
+ background-color: #000;
+ border: 1px solid #000;
+ -webkit-transition: all 0.2s ease;
+ transition: all 0.2s ease;
+ -webkit-user-select: none;
+ -moz-user-select: none;
+ -ms-user-select: none;
+ user-select: none;
+ cursor: pointer;
+ overflow: hidden;
+ outline: none;
+}
+.cmp-button:hover {
+ color: #000;
+ border: 1px solid #000;
+ background: #fff;
+}
+.cmp-link {
+      color: rgb(6, 125, 247);
+    text-decoration: none;
+}
+.cmp-h1 {
+      font-size: 20px;
+    font-weight: 600;
+    margin: 5px 0px;
+}
+.cmp-h2 {
+      font-size: 18px;
+    font-weight: 500;
+    margin: 0px 0px 14px;
+}
+
+</style>
+</head>
+<body>
+<div id="wrapper">
+  <h1>Zeit Integration Ui Playground</h1>
+  <div id="data-editor">  
+    <input type="text" id="api-url" value="http://localhost:5005"> 
+    <button onclick="sendRequest()">Send Request</button>
+    <div id="spinner" class="sp sp-circle"></div>
+    <textarea name="" id="" >
+{
+    "query": {
+        "cfgId": "icfg_****"
+    },
+    "action": "view",
+    "clientState": {},
+    "token": "****",
+    "slug": "sandbox",
+    "configurationId": "icfg_****",
+    "integrationId": "oac_****",
+    "teamId": null, 
+    "user": {
+        "id": "****",
+        "username": "****",
+        "email": "****",
+        "name": null,
+        "profiles": []
+    },
+    "team": null,
+    "project": null,
+    "projectId": null,
+    "installationUrl": "https://zeit.co/dashboard/integrations/icfg_****"
+}
+    </textarea>
+    
+  </div> 
+  <div id="ui-placeholder">
+    Integration Ui Placeholder
+  </div>
+
+</div>
+
+<script>
+var domparser = new DOMParser();
+
+function updateUiMarkup(markup) {
+  let placeHolderElement = $("#ui-placeholder", document)
+  placeHolderElement.innerHTML = markup
+}
+
+function setSpinnerVisibility(visibility = "hidden") {
+  $("#spinner").style.visibility = visibility
+}
+
+function sendRequest() {
+  let url = $("#api-url").value
+  let data = JSON.parse($("#data-editor textarea").value)
+  console.log("Sending Request to", url, data)
+  setSpinnerVisibility("visible")
+  fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(function(res) {
+      return res.text()
+    })
+    .then(function(data) {
+      let hackedMarkup = hackMarkup(data)
+
+      updateUiMarkup(hackedMarkup)
+      setSpinnerVisibility("hidden")
+    })
+    .catch(function(error) {
+
+      setSpinnerVisibility("hidden")
+      console.log(error);
+    });
+}
+
+function $(selector, el) {
+  if (!el) {
+    el = document;
+  }
+  return el.querySelector(selector);
+}
+
+function $$(selector, el) {
+  if (!el) {
+    el = document;
+  }
+  return Array.prototype.slice.call(el.querySelectorAll(selector));
+}
+
+function replaceComponentTags({
+  code,
+  oldTag,
+  newTag
+}) {
+  let newCode = code.replace(RegExp(`\<${oldTag}\>`, 'gi'), `<${newTag} class="cmp cmp-${oldTag.toLowerCase()}"\>`)
+  newCode = newCode.replace(RegExp(`\<${oldTag} `, 'gi'), `<${newTag} class="cmp cmp-${oldTag.toLowerCase()}"`)
+  newCode = newCode.replace(RegExp(`\<\/${oldTag}`, 'gi'), `</${newTag}`)
+  return newCode
+}
+
+const tagReplaceDef = [{
+    oldTag: 'Link',
+    newTag: 'a'
+  },
+  {
+    oldTag: 'UL',
+    newTag: 'ul'
+  },
+  {
+    oldTag: 'LI',
+    newTag: 'li'
+  },
+  {
+    oldTag: 'Button',
+    newTag: 'button'
+  },
+  {
+    oldTag: 'Input',
+    newTag: 'input'
+  },
+  {
+    oldTag: 'Page',
+    newTag: 'div'
+  },
+  {
+    oldTag: 'Container',
+    newTag: 'div'
+  },
+  {
+    oldTag: 'Code',
+    newTag: 'pre'
+  },
+  {
+    oldTag: 'P',
+    newTag: 'p'
+  },
+  {
+    oldTag: 'H1',
+    newTag: 'h1'
+  },
+  {
+    oldTag: 'Box',
+    newTag: 'div'
+  },
+]
+
+function hackMarkup(markup) {
+  let hackedMarkup = markup
+  hackedMarkup = hackedMarkup.replace(RegExp('{"', "gi"), "")
+
+  hackedMarkup = hackedMarkup.replace(RegExp('"}', "gi"), "")
+  tagReplaceDef.forEach(({
+    code,
+    oldTag,
+    newTag
+  }) => {
+    hackedMarkup = replaceComponentTags({
+      code: hackedMarkup,
+      oldTag,
+      newTag
+    })
+  })
+  let hackedDoc = domparser.parseFromString(hackedMarkup, "text/html")
+  //Set <Box/> style from attributes
+  let boxEls = $$('.cmp-box', hackedDoc)
+
+  boxEls.forEach((el) => {
+
+    el.getAttributeNames()
+      .forEach((name) => {
+        el.style[name] = el.getAttribute(name)
+      })
+  })
+  return new XMLSerializer().serializeToString(hackedDoc)
+}
+let exampleMarkup = `
+<Page>
+			<Button action="test-action">
+			Button with ms from browser: ${Date.now()}
+			</Button>
+			<Box background="black" border-radius="10px" padding="10px" color="white">
+				Styled box content
+			</Box>
+			<Link href="http://test.com">Link</Link>
+			<P>P</P>
+			<H1>H1</H1>
+			<H2>H2</H2>
+			Code:
+			<Code>
+* {
+  background:azure;
+}
+			</Code>
+		</Page>
+
+`
+let hackedExampleMarkup = hackMarkup(exampleMarkup)
+updateUiMarkup(hackedExampleMarkup)
+//# sourceURL=userscript.js
+</script>
+</body>
+</html>
